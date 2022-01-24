@@ -2,7 +2,7 @@
 // Created by vasco on 1/22/2022.
 //
 
-#include "Menu.h"
+#include "menu.h"
 #include "auxiliar.h"
 #include "iostream"
 #include<conio.h>
@@ -22,36 +22,44 @@ bool Menu::nextState() {
             viewCloseStations();
             return true;
         case 3:
-            settings();
+            closeStopsLines();
             return true;
         case 4:
-            dayNight();
+            settings();
             return true;
         case 5:
-            closeStopsLines();
+            changeSearchingMode();
+            return true;
+        case 6:
+            dayNight();
+            return true;
+        case 7:
+            changeWalkingTime();
+            return true;
+        case 8:
+            changeStopsNumber();
             return true;
         default:
             return false;
     }
-
-    return true;
 }
 
 Menu::Menu () {
     state = 0;
     settingsOp = 1;
     daytimeSchedule = 1;
-    maxTimeWalking = 20;
+    maxTimeWalking = 15;
+    numStops = 1;
     graphInit();
 }
 
 void Menu::mainMenu() {
 
     title("Main Menu");
-    showMenu({"Search Best Path", "View close stations", "Searching's settings", "DAY/NIGHT", "Close station/lines", "Exit"});
+    showMenu(menuOptions);
 
     int key = getInt("What's your option");
-    while (key < 1 || key > 6) key = getInt("What's your option");
+    while (key < 1 || key > 5) key = getInt("What's your option");
 
     state = key;
 }
@@ -59,7 +67,7 @@ void Menu::mainMenu() {
 void Menu::searchBestPath() {
 
     title("Search Best Path By:");
-    cout << "|  Settings for: " << settingsOptions[settingsOp - 1] << endl;
+    cout << "|  Settings for: " << searchingModes[settingsOp - 1] << endl;
 
     showMenu({"Station's name", "Station's code", "Closest to me", "Go back"});
     int key = getInt("What's your option");
@@ -72,7 +80,7 @@ void Menu::searchBestPath() {
 
     clearSCR();
     title("Origin Station");
-    int index1 = -1;
+    int index1;
 
     switch (key) {
         case 1: {
@@ -92,66 +100,66 @@ void Menu::searchBestPath() {
             return searchBestPath();
     }
 
-    clearSCR();
-    title("Destination Station By:");
-    showMenu({"Station's name", "Station's code", "Coordinates"});
-    key = getInt("What's your option");
-    while (key < 1 || key > 3) key = getInt("What's your option");
-
-    clearSCR();
-    title("Destination Station");
-    int index2 = -1;
-
-    switch (key) {
-        case 1: {
-            string name = getString("What's the Station name");
-            index2 = graph.stationIndexes[graph.nameToCode[name]];
-            break;
-        } case 2: {
-            string code = getString("What's the Station code");
-            index2 = graph.stationIndexes[code];
-            break;
-        } case 3: {
-            double latitude = getDouble("What's your latitude");
-            double longitude = getDouble("What's your longitude");
-            index2 = graph.closestStation(latitude, longitude, 1)[0].first;
-            break;
-        } default:
-            return searchBestPath();
-    }
-
-    if (settingsOp != 6) {
-        if (!graph.closestPath(index1, index2, settingsOp, daytimeSchedule == 1)) {
-            if(errorFunc("No path available")) {
-                state = 0;
-            }
-            return;
-        }
+    for (int j = 1; j <= numStops; ++j) {
+        clearSCR();
+        title("(" + to_string(j) + ") Destination station:");
+        showMenu({"Station's name", "Station's code", "Coordinates"});
+        key = getInt("What's your option");
+        while (key < 1 || key > 3) key = getInt("What's your option");
 
         clearSCR();
+        title("Destination Station");
+        int index2;
 
-        int numZonas = graph.nodes[index2].zonesVisited;
-        if (numZonas == 1) numZonas++;
+        switch (key) {
+            case 1: {
+                string name = getString("What's the Station name");
+                index2 = graph.stationIndexes[graph.nameToCode[name]];
+                break;
+            } case 2: {
+                string code = getString("What's the Station code");
+                index2 = graph.stationIndexes[code];
+                break;
+            } case 3: {
+                double latitude = getDouble("What's your latitude");
+                double longitude = getDouble("What's your longitude");
+                index2 = graph.closestStation(latitude, longitude, 1)[0].first;
+                break;
+            } default:
+                return searchBestPath();
+        }
 
-        title(settingsOptions[settingsOp - 1]);
-        cout << "| Ticket type: Z" << numZonas << endl << "| Price: 0.60 euros (Blue card) + " << ticketPrice(numZonas) << " euros (ticket)" << endl << "| Ticker valid for " << ticketTime(numZonas) << "h" << endl << "|----------------------------------------" << endl;
-        graph.printClosestPath(index2);
-
-    } else {
-        for (int i = 1; i < 6; ++i) {
-            if (!graph.closestPath(index1, index2, i, daytimeSchedule == 1)) {
-                if(errorFunc("No path available")) {
-                    state = 0;
-                }
+        if (settingsOp != 6) {
+            if (!graph.closestPath(index1, index2, settingsOp, daytimeSchedule == 1)) {
+                state = !errorFunc("No path available");
                 return;
             }
 
+            clearSCR();
             int numZonas = graph.nodes[index2].zonesVisited;
             if (numZonas == 1) numZonas++;
 
-            title(settingsOptions[i - 1]);
-            graph.printPossiblePath(index2);
-            cout << endl << "| Ticket type: Z" << numZonas << " valid for " << ticketTime(numZonas) << "h"  << endl << "| Price: 0.60 euros (Blue card) + " << ticketPrice(numZonas) << " euros (ticket)" << endl;
+            title(searchingModes[settingsOp - 1]);
+            graph.printClosestPath(index2);
+
+        } else {
+            for (int i = 1; i < 6; ++i) {
+                if (!graph.closestPath(index1, index2, i, daytimeSchedule == 1)) {
+                    state = !errorFunc("No path available");
+                    return;
+                }
+
+                int numZonas = graph.nodes[index2].zonesVisited;
+                if (numZonas == 1) numZonas++;
+
+                title(searchingModes[i - 1]);
+                graph.printPossiblePath(index2);
+            }
+        }
+        index1 = index2;
+        if (j < numStops) {
+            cout << "Click enter to continue" << endl;
+            getch();
         }
     }
 
@@ -172,7 +180,8 @@ void Menu::viewCloseStations() {
     options.reserve(stations.size());
 
     for (pair<int, double> station : stations) {
-        options.push_back(graph.nodes[station.first].name + " : " + to_string(station.second) + " Km");
+        int dist = station.second * 1000;
+        options.push_back(graph.nodes[station.first].name + " : " + to_string(dist) + "m");
     }
 
     clearSCR();
@@ -187,40 +196,52 @@ void Menu::viewCloseStations() {
 void Menu::settings() {
 
     title("Settings");
-    showMenu( settingsOptions, settingsOp);
+    showMenu(settingsOptions);
 
     int key = getInt("What's your option");
-    while (key < 1 || key > 8) key = getInt("What's your option");
+    while (key < 1 || key > 5) key = getInt("What's your option");
 
-    if (key == 8) {
+    if (key == 5) {
         state = 0;
-    } else if (key == 7) {
-
-        clearSCR();
-        maxTimeWalking = getInt("New max walking time between stations", "(" + to_string(maxTimeWalking) + " minutes)");
-        graph.rmvWalking();
-        graph.createWalking(maxTimeWalking);
-        endMessage();
-        state = 0;
-
     } else {
-        settingsOp = key;
-        state = 3;
+        state = 4 + key;
     }
+}
 
+void Menu::changeSearchingMode() {
+    title("Change searching mode");
+    showMenu( searchingModes, settingsOp);
+    int op = getInt("What's your option");
+    while (op < 1 || op > 7) op = getInt("What's your option");
+
+    if (op == 7) {
+        state = 4;
+    } else {
+        settingsOp = op;
+    }
+}
+
+void Menu::changeWalkingTime() {
+    clearSCR();
+    maxTimeWalking = getInt("New max walking time between stations", "(" + to_string(maxTimeWalking) + " minutes)");
+    graph.rmvWalking();
+    graph.createWalking(maxTimeWalking);
+    endMessage();
+    state = 4;
+}
+
+void Menu::changeStopsNumber() {
+    clearSCR();
+    numStops = getInt("New number of stops", "(" + to_string(numStops) + " stops)");
+    endMessage();
+    state = 4;
 }
 
 void Menu::dayNight() {
 
-    title("Day/Night Schedule");
-    showMenu( {"Day", "Night", "Go back"}, daytimeSchedule);
-
-    int key = getInt("What's your option");
-    while (key < 1 || key > 3) key = getInt("What's your option");
-
-
-    if (key == 3) state = 0;
-    else {daytimeSchedule = key;};
+    daytimeSchedule = !daytimeSchedule;
+    settingsOptions = {"Change searching mode", daytimeSchedule ? "Switch Day/Night (day)" : "Switch Day/Night (night)", "Change max walking time", "Increase number of stops", "Go back"};
+    state = 4;
 }
 
 void Menu::closeStopsLines() {

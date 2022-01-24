@@ -9,9 +9,11 @@
 
 class Menu {
 private:
-    int state, settingsOp, daytimeSchedule, maxTimeWalking;
+    int state, settingsOp, daytimeSchedule, maxTimeWalking, numStops;
 
-    vector<string> settingsOptions = {"Path with least stations", "Closest path", "Fewer line exchanges", "The cheapest", "Dynamic mode", "All the above", "Change max walking time" , "Go back"};
+    vector<string> menuOptions = {"Search Best Path", "View close stations", "Close/Open station/lines", "Searching's settings", "Exit"};
+    vector<string> settingsOptions = {"Change searching mode", daytimeSchedule ? "Switch Day/Night (day)" : "Switch Day/Night (night)", "Change max walking time", "Increase number of stops", "Go back"};
+    vector<string> searchingModes = {"Path with least stations", "Closest path", "Fewer line exchanges", "The cheapest", "Dynamic mode", "All the above", "Go back"};
     Graph graph;
 
     void graphInit();
@@ -20,8 +22,13 @@ private:
     void searchBestPath();
     void viewCloseStations();
     void settings();
-    void dayNight();
     void closeStopsLines();
+
+    void changeSearchingMode();
+    void dayNight();
+    void changeWalkingTime();
+    void changeStopsNumber();
+
 
 public:
     Menu();

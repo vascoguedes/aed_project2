@@ -19,7 +19,4 @@ int getInt(const string& text = "", const string& text2 = "");
 double getDouble(const string& text = "", const string& text2 = "");
 string getString(const string& text = "", const string& text2 = "");
 
-float ticketPrice(int numZones);
-float ticketTime(int numZones);
-
 #endif //CODE_AUXILIAR_H

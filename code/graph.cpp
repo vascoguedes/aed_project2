@@ -11,6 +11,7 @@
 #include <list>
 #include "minHeap.h"
 #include "auxiliar.h"
+#include "set"
 
 Graph::Graph() {
 
@@ -171,22 +172,27 @@ bool Graph::closestPath(int src, int dest, int criteria, bool daytimeSchedule) {
         return bfs(src, dest, daytimeSchedule);
     } else if (criteria == 3) {
 
-        vector<string> possLines;
+        // criar um set
+        set<string> possLines = {"walking-line"};
         auto options = new MinHeap<string, int> (nodes[src].adj.size(), "");
         bool v = false;
         for (const Edge& edge: nodes[src].adj) {
+            possLines.insert(edge.line);
+        }
 
-            if (dijkstra(src, dest, criteria, daytimeSchedule, edge.line)) {
+        for (string possLine : possLines) {
+            if (dijkstra(src, dest, criteria, daytimeSchedule, possLine)) {
                 v = true;
 
-                int crawl = dest, numBus = 1;
+                int crawl = dest, numBus = 0;
                 string auxLine = nodes[crawl].line;
                 while (nodes[crawl].pred != -1) {
                     crawl = nodes[crawl].pred;
-                    numBus += auxLine != nodes[crawl].line;
+                    numBus += (auxLine != nodes[crawl].line) && auxLine != "walking-line";
                     auxLine = nodes[crawl].line;
                 }
-                options->insert(edge.line, numBus);
+                if (auxLine != "walking-line") numBus++;
+                options->insert(possLine, numBus);
             }
         }
 
@@ -215,6 +221,7 @@ bool Graph::bfs(int src, int dest, bool daytimeSchedule) {
     nodes[src].dist = 0;
     nodes[src].zonesVisited = 1;
     nodes[src].visited = true;
+    nodes[src].line = "walking-line";
     queueu.push_back(src);
 
     while (!queueu.empty()) {
@@ -226,13 +233,8 @@ bool Graph::bfs(int src, int dest, bool daytimeSchedule) {
 
             if (!nodes[d].visited && ((edge.operating && edge.daytimeSchedule == daytimeSchedule) || edge.line == "walking-line")) {
 
-                if (edge.line == "walking-line") {
-                    nodes[d].walkingDist = nodes[u].walkingDist + edge.distance;
-                    nodes[d].dist = nodes[u].dist;
-                } else {
-                    nodes[d].walkingDist = nodes[u].walkingDist;
-                    nodes[d].dist = nodes[u].dist + edge.distance;
-                }
+                nodes[d].walkingDist = nodes[u].walkingDist + edge.distance * (edge.line == "walking-line");
+                nodes[d].dist = nodes[u].dist + edge.distance * (edge.line != "walking-line");
 
                 nodes[d].visited = true;
                 nodes[d].zonesVisited = nodes[u].zonesVisited + edge.changeZone;
@@ -274,38 +276,16 @@ bool Graph::dijkstra(int src, int dest, int criteria, bool daytimeSchedule, stri
         for (const Edge& edge: nodes[u].adj) {
 
             int d = edge.dest;
-            double w = 0;
 
-            if (criteria == 2) {
-                if (edge.line == "walking-line") {
-                    w = edge.distance * 3.16;
-                } else {
-                    w = edge.distance;
-                }
-                 // ONE -> Closest Path (distance)
-            } else if (criteria == 3) {
-                w = edge.line != nodes[u].line;
-            } else if (criteria == 4) {
-                w = edge.changeZone;  // TWO -> Cheapest Path (money)
-            } else if (criteria == 5) {
-                w = 0.2 + edge.distance + edge.changeZone * 1.5;  // -> Dinamic Mode Path (money)
-                w += edge.line != nodes[u].line;
-                if (edge.line == "walking-line") {
-                    w += edge.distance * 3.16;
-                } else {
-                    w += edge.distance;
-                }
-            }
+            double w = 0.1 * (0.01 + 0.99 * criteria == 5);
+            w += (edge.distance * 2.16 * (edge.line == "walking-line") + edge.distance) * (0.01 + 0.99 * (criteria == 2 || criteria == 5)) + (edge.line == "walking-line") * 100 * ((nodes[u].walkingDist + edge.distance ) > 2);
+            w += (edge.line != nodes[u].line) * 2 * (0.01 + 0.99 * ((criteria == 3 && edge.line != "walking-line") || criteria == 5));
+            w += (edge.changeZone) * (0.01 + 0.99 * (criteria == 4 || criteria == 5));
 
             if (!nodes[d].visited && ((edge.operating && edge.daytimeSchedule == daytimeSchedule) || edge.line == "walking-line") && nodes[u].weight + w < nodes[d].weight) {
 
-                if (edge.line == "walking-line") {
-                    nodes[d].walkingDist = nodes[u].walkingDist + edge.distance;
-                    nodes[d].dist = nodes[u].dist;
-                } else {
-                    nodes[d].walkingDist = nodes[u].walkingDist;
-                    nodes[d].dist = nodes[u].dist + edge.distance;
-                }
+                nodes[d].walkingDist = nodes[u].walkingDist + edge.distance * (edge.line == "walking-line");
+                nodes[d].dist = nodes[u].dist + edge.distance * (edge.line != "walking-line");
 
                 nodes[d].weight = nodes[u].weight + w;
                 nodes[d].zonesVisited = nodes[u].zonesVisited + edge.changeZone;
@@ -316,38 +296,55 @@ bool Graph::dijkstra(int src, int dest, int criteria, bool daytimeSchedule, stri
             }
         }
     }
-
     return nodes[dest].pred != -1;
 }
 
 void Graph::printClosestPath(int dest) {
 
     vector<Node> path;
-    int crawl = dest, numBus = 0;
+    int crawl = dest, numBus = 0, busTime, walkingTime, numZonas = 0;
+    string auxZone = "";
     string auxLine = nodes[crawl].line;
-    path.push_back(nodes[crawl]);
+
     while (nodes[crawl].pred != -1) {
         path.push_back(nodes[crawl]);
         crawl = nodes[crawl].pred;
 
-        numBus += (auxLine != nodes[crawl].line) && nodes[crawl].line != "walking-line";
+        if (nodes[crawl].zone != auxZone && nodes[crawl].line != "walking-line") {
+            numZonas++;
+            auxZone = nodes[crawl].zone;
+        }
+
+        numBus += (auxLine != nodes[crawl].line) && auxLine != "walking-line";
         auxLine = nodes[crawl].line;
     }
+    if (nodes[crawl].line != "walking-line") numBus++;
     path.push_back(nodes[crawl]);
+
+    cout  << "| From: " << nodes[crawl].name << "  To: " << nodes[dest].name << endl;
+    if (numZonas > 0) {
+        if (numZonas == 1) numZonas = 2;
+        cout << "| Ticket type: Z" << numZonas << endl << "| Price: 0.60 euros (Blue card) + " << ticketPrice(numZonas) << " euros (ticket)" << endl << "| Ticker valid for " << ticketTime(numZonas) << "h" << endl << "|----------------------------------------" << endl;
+    } else {
+        cout << "| No ticket needed!" << endl;
+    }
+
     // distance from source is in distance array
+    busTime = round(nodes[dest].dist * 60 /15.8);
+    walkingTime = round(nodes[dest].walkingDist * 60 / 5);
     cout << "| Shortest path length crosses "
-         << path.size() << " stations (approximately " << nodes[dest].dist * 60 /15.8 << " minutes + " << nodes[dest].walkingDist * 60 / 5 << " minutes walking)" << endl;
+         << path.size() << " stations (approximately " << busTime  << " minutes + " << walkingTime << " minutes walking)" << endl;
 
     cout << "| You will need to catch " << numBus << ( numBus > 1 ? " buses" : " bus");
 
     // printing path from source to destination
     cout << "\n| Path is:\n";
-    cout << "| Start: " << path[path.size() - 2].line << endl;
+    cout << "| Start: " << path[path.size() - 1].line << endl;
     cout << "|  -> " << path[path.size() - 1].code;
 
     for (int i = path.size() - 2; i >= 0; i--) {
         if (path[i].line != path[i + 1].line && !path[i + 1].line.empty()) {
-            cout << endl << "| Change to " << path[i].line << endl;
+            cout << endl << "| Catch the " << path[i].line << endl;
             cout << "|  -> " << path[i + 1].code;
         }
         cout << " -> " << path[i].code;
@@ -359,22 +356,38 @@ void Graph::printClosestPath(int dest) {
 void Graph::printPossiblePath(int dest) {
 
     vector<int> path;
-    int crawl = dest, numBus = 1;
-    string auxLine = nodes[crawl].line;
+    int crawl = dest, numBus = 0, busTime, walkingTime, numZonas = 0;
+    string auxLine = nodes[crawl].line, auxZone = "";
     path.push_back(crawl);
     while (nodes[crawl].pred != -1) {
         path.push_back(nodes[crawl].pred);
         crawl = nodes[crawl].pred;
 
-        numBus += auxLine != nodes[crawl].line;
+        if (nodes[crawl].zone != auxZone && nodes[crawl].line != "walking-line") {
+            numZonas++;
+            auxZone = nodes[crawl].zone;
+        }
+
+        numBus += (auxLine != nodes[crawl].line) && auxLine != "walking-line";
         auxLine = nodes[crawl].line;
+    }
+    if (nodes[crawl].line != "walking-line") numBus++;
+
+    cout  << "| From: " << nodes[crawl].name << "  To: " << nodes[dest].name << endl;
+    if (numZonas > 0) {
+        if (numZonas == 1) numZonas = 2;
+        cout << "| Ticket type: Z" << numZonas << endl << "| Price: 0.60 euros (Blue card) + " << ticketPrice(numZonas) << " euros (ticket)" << endl << "| Ticker valid for " << ticketTime(numZonas) << "h" << endl;
+    } else {
+        cout << "| No ticket needed!" << endl;
     }
 
     // distance from source is in distance array
+    busTime = round(nodes[dest].dist * 60 /15.8);
+    walkingTime = round(nodes[dest].walkingDist * 60 / 5);
     cout << "| Crosses "
-         << path.size() << " stations (approximately " << nodes[dest].dist * 60 /15.8 << " minutes + " << nodes[dest].walkingDist * 60 / 5 << " minutes walking)" << endl;
+         << path.size() << " stations (approximately " << busTime << " minutes + " << walkingTime << " minutes walking)" << endl;
 
-    cout << "| You will need to catch " << numBus << ( numBus > 1 ? " buses" : " bus");
+    cout << "| You will need to catch " << numBus << ( numBus > 1 ? " buses" : " bus") << endl;
 }
 
 vector<pair<int, double>> Graph::closestStation(double latitude, double longitude, int num = 1) const {
@@ -448,5 +461,54 @@ void Graph::rmvWalking() {
                 node.adj.erase(node.adj.begin() + i);
             }
         }
+    }
+}
+
+
+float Graph::ticketPrice(int numZones) {
+    switch (numZones) {
+        case 2:
+            return 1.25;
+        case 3:
+            return 1.60;
+        case 4:
+            return 2.00;
+        case 5:
+            return 2.40;
+        case 6:
+            return 2.85;
+        case 7:
+            return 3.25;
+        case 8:
+            return 3.65;
+        default:
+            return 4.05;
+    }
+}
+
+float Graph::ticketTime(int numZones) {
+    switch (numZones) {
+        case 2:
+            return 1.00;
+        case 3:
+            return 1.00;
+        case 4:
+            return 1.25;
+        case 5:
+            return 1.50;
+        case 6:
+            return 1.75;
+        case 7:
+            return 2.00;
+        case 8:
+            return 2.25;
+        case 9:
+            return 2.50;
+        case 10:
+            return 2.75;
+        case 11:
+            return 3.00;
+        default:
+            return 3.25;
     }
 }

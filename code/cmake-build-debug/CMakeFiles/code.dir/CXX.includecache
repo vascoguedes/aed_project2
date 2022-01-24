@@ -12,6 +12,28 @@ C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/string
 vector
 C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/vector
 
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.cpp
+fstream
+-
+graph.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
+cmath
+-
+iostream
+-
+dirent.h
+-
+sstream
+-
+list
+-
+minHeap.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/minHeap.h
+auxiliar.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
+set
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/set
+
 C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
 iostream
 -
@@ -20,17 +42,9 @@ vector
 map
 -
 
-C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.cpp
-Menu.h
-C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
-auxiliar.h
-C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
-iostream
-C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/iostream
-conio.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/minHeap.h
+vector
 -
-
-C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
-graph.h
-C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
+unordered_map
+-
 

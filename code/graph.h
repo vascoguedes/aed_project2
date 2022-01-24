@@ -42,7 +42,7 @@ class Graph {
         Graph();
         bool closestPath(int src, int dest, int criteria, bool daytimeSchedule);
         bool bfs(int src, int dest, bool daytimeSchedule);
-        bool dijkstra(int src, int dest, int criteria, bool daytimeSchedule, string initialLine = "");
+        bool dijkstra(int src, int dest, int criteria, bool daytimeSchedule, string initialLine = "walking-line");
 
         void printClosestPath(int dest);
         void printPossiblePath(int dest);
@@ -52,6 +52,9 @@ class Graph {
         void closeOpenStation(int index, bool closeOpen);
         void createWalking(int maxWalking);
         void rmvWalking();
+
+        float ticketPrice(int numZones);
+        float ticketTime(int numZones);
 
         vector<pair<int, double>> closestStation(double latitude, double longitude, int num) const;
         double stationDistance(int src, int dest) const;
