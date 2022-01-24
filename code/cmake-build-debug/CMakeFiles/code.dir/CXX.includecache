@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
+string
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/string
+vector
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/vector
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
+iostream
+-
+vector
+-
+map
+-
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.cpp
+Menu.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
+auxiliar.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
+iostream
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/iostream
+conio.h
+-
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
+graph.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
+
