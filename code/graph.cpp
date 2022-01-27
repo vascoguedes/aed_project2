@@ -456,9 +456,12 @@ void Graph::createWalking(int maxWalking) {
 
 void Graph::rmvWalking() {
     for (Node &node : nodes) {
-        for (int i = 0; i < node.adj.size(); i++) {
+        int max = node.adj.size();
+        for (int i = 0; i < max; i++) {
             if (node.adj[i].line == "walking-line") {
                 node.adj.erase(node.adj.begin() + i);
+                max--;
+                i--;
             }
         }
     }
