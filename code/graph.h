@@ -39,6 +39,9 @@ class Graph {
         map<string, string> nameToCode;
         map<string, int> stationIndexes;
 
+        /**
+         * @brief Initializer
+         */
         Graph();
         bool closestPath(int src, int dest, int criteria, bool daytimeSchedule);
         bool bfs(int src, int dest, bool daytimeSchedule);

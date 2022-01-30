@@ -6,6 +6,20 @@
 
 #IncludeRegexTransform: 
 
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.cpp
+auxiliar.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
+iostream
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/iostream
+fstream
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/fstream
+ctime
+-
+vector
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/vector
+conio.h
+-
+
 C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
 string
 C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/string
@@ -41,6 +55,28 @@ vector
 -
 map
 -
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/main.cpp
+iostream
+-
+graph.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
+Menu.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.cpp
+menu.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
+auxiliar.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/auxiliar.h
+iostream
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/iostream
+conio.h
+-
+
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/menu.h
+graph.h
+C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/graph.h
 
 C:/Users/vasco/Desktop/FEUP/AED/aed_project2/code/minHeap.h
 vector
